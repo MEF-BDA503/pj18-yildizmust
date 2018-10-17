@@ -1,2 +1,2 @@
 
-First Assignment [Click here](https://github.com/MEF-BDA503/pj18-yildizmust/blob/master/Assignment_1.md) 
+First Assignment [Click here]( https://mef-bda503.github.io/pj18-yildizmust/Assignment_1.html) 

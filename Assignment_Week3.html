@@ -1,0 +1,146 @@
+---
+title: "Assignment_Week3"
+author: "Mustafa Yýldýz"
+date: "31 Ekim 2018"
+output: html_document
+---
+
+<h1 class="title toc-ignore">Car Sales Data Import </h1>
+<h4 class="Mustafa Yýldýz"><em>Instructor</em></h4>
+<h4 class="date"><em>31/10/2018</em></h4>
+
+</div>
+<div id="install_packages" class="section level1">
+<h1>Install Packages</h1>
+install.packages("readxl")</code></pre>
+install.packages("tidyverse")</code></pre>
+library(readxl) </code></pre>
+library(tidyverse) </code></pre>
+
+<div id="from-raw-to-civilized-data" class="section level1">
+<h1>From Raw to Civilized Data</h1>
+<p>I downloaded April 2016 car sales data from Otomotiv Distibütörleri Derneði </p>
+
+<div id="download-raw-data" class="section level2">
+<h2>Download Raw Data</h2>
+<p>Our raw excel file is in our repository. We can automatically download that file and put it in a temporary file. Then we can read that excel document into R and remove the temp file.</p>
+<pre class="r"><code># Create a temporary file
+tmp<-tempfile(fileext=".xlsx")</code></pre>
+# Download file from repository to the temp file
+download.file("https://github.com/MEF-BDA503/pj18-yildizmust/blob/master/ODD_2016Nisan.xlsx?raw=true",mode = 'wb',destfile=tmp) </code></pre>
+# Read that excel file using readxl package's read_excel function. You might need to adjust the parameters (skip, col_names) according to your raw file's format.
+odd_201604<-readxl::read_excel(tmp,skip=7,col_names=FALSE)
+# Remove the temp file
+file.remove(tmp)</code></pre>
+<pre><code>## [1] TRUE</code></pre>
+
+# Let's see our raw data
+head(odd_201604)</code></pre>
+<pre><code>## #  A tibble: 6 x 10
+#  X__1          X__2  X__3  X__4  X__5  X__6  X__7  X__8  X__9 X__10
+#  <chr>        <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl>
+#1 ALFA ROMEO      NA    58    58    NA    NA     0     0    58    58
+#2 ASTON MARTIN    NA     4     4    NA    NA     0     0     4     4
+#3 AUDI            NA  2148  2148    NA    NA     0     0  2148  2148
+#4 BENTLEY         NA     0     0    NA    NA     0     0     0     0
+#5 BMW             NA  2332  2332    NA    NA     0     0  2332  2332
+#6 CHERY           NA     9     9    NA    NA     0     0     9     9
+
+tail(odd_201604)</code></pre>
+<pre><code>## #  A tibble: 6 x 10
+#  X__1        X__2  X__3  X__4  X__5  X__6  X__7  X__8  X__9 X__10
+#  <chr>      <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl>
+#1 SUBARU        NA   148   148    NA    NA     0     0   148   148
+#2 SUZUKI        NA   151   151    NA    NA     0     0   151   151
+#3 TATA          NA    NA     0    NA    NA     0     0     0     0
+#4 TOYOTA      3236   836  4072    NA   402   402  3236  1238  4474
+#5 VOLKSWAGEN    NA  7811  7811    NA  2674  2674     0 10485 10485
+#6 VOLVO         NA   335   335    NA    NA     0     0   335   335
+
+<pre class="r"><code># Remove the last two rows because they are irrelevant (total and empty rows)
+odd_201604 <- odd_201604 %>% slice(-c(49,50)) )</code></pre>
+
+
+</div>
+<div id="make-data-civilized" class="section level2">
+<h2>Make Data Civilized</h2>
+<p>In order to make the data standardized and workable we need to define column names and remove NA values for this example. Please use the same column names in your examples also.</p>
+<pre class="r"><code># Use the same column names in your data.
+colnames(odd_201604) <- c("brand_name","auto_dom","auto_imp","auto_total","comm_dom","comm_imp","comm_total","total_dom","total_imp","total_total") </code></pre>
+# Now we replace NA values with 0 and label the time period with year and month, so when we merge the data we won't be confused.
+car_data_apr_16  <- odd_201604 %>% mutate_if(is.numeric,funs(ifelse(is.na(.),0,.))) %>% mutate(year=2016,month=4)
+print(car_data_jul_apr,width=Inf) </code></pre>
+<pre><code>## #  A tibble: 48 x 12
+<pre><code>## #   A tibble: 48 x 12
+#   brand_name   auto_dom auto_imp auto_total comm_dom comm_imp comm_total total_dom total_imp
+#   <chr>           <dbl>    <dbl>      <dbl>    <dbl>    <dbl>      <dbl>     <dbl>     <dbl>
+# 1 ALFA ROMEO          0       58         58        0        0          0         0        58
+# 2 ASTON MARTIN        0        4          4        0        0          0         0         4
+# 3 AUDI                0     2148       2148        0        0          0         0      2148
+ #4 BENTLEY             0        0          0        0        0          0         0         0
+# 5 BMW                 0     2332       2332        0        0          0         0      2332
+# 6 CHERY               0        9          9        0        0          0         0         9
+# 7 CITROEN             0     1684       1684       95      670        765        95      2354
+# 8 DACIA               0     3555       3555        0      512        512         0      4067
+# 9 DS                  0       35         35        0        0          0         0        35
+#10 FERRARI             0        4          4        0        0          0         0         4
+#   total_total  year month
+#         <dbl> <dbl> <dbl>
+# 1          58  2016     4
+# 2           4  2016     4
+# 3        2148  2016     4
+# 4           0  2016     4
+# 5        2332  2016     4
+# 6           9  2016     4
+# 7        2449  2016     4
+# 8        4067  2016     4
+# 9          35  2016     4
+#10           4  2016     4
+# ... with 38 more rows
+
+</div>
+<div id="save-your-civilized-data" class="section level1">
+<h1>Save Your Civilized Data</h1>
+<p>One of the best methods is to save your data to an <code>RDS</code> or <code>RData</code> file. The difference is RDS can hold only one object but RData can hold many. Since we have only one data frame here we will go with RDS.</p>
+<pre class="r"><code>saveRDS(car_data_sep_18,file=&quot;~/YOUR_OWN_PATH/odd_car_sales_data_sep_18.rds&quot;)
+# You can read that file by readRDS and assigning to an object 
+saveRDS(car_data_apr_16,file="car_data_apr_16.rds")</code></pre>
+</div>
+<div id="finish-with-some-analysis" class="section level1">
+<h1>Finish With Some Analysis</h1>
+car_data_apr_16 %>% select(brand_name,auto_dom) %>% arrange(desc(auto_dom)) %>%  filter(auto_dom>0) </code></pre>
+
+<pre><code>## # # A tibble: 6 x 2
+# brand_name auto_dom
+#  <chr>         <dbl>
+#1 RENAULT        7297
+#2 FIAT           4540
+#3 TOYOTA         3236
+#4 HYUNDAI        2101
+#5 FORD            640
+#6 HONDA           574
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
